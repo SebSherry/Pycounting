@@ -128,7 +128,6 @@ class DailyBudgetPage(tk.Frame):
                 tempEntry[2] = entAmt.get()
             elif self.entryType.get() == "Credit":
                 tempEntry[3] = entAmt.get()
-
             tempEntry = ToDict(tempEntry)
             if entry != []:
                 tempEntry['ID'] = entry['ID']

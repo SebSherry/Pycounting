@@ -82,8 +82,10 @@ def CentsToDollars(entry):
     return entry
 
 def DollarsToCents(entry):
+    print(entry)
     for col in ['Debt','Credit']:
-        entry[col] = int(float(entry[col])*100)
+        entry[col] = round(float(entry[col])*100)
+    print(entry)
     return entry
 
 def FixDate(entry):

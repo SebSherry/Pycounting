@@ -74,8 +74,9 @@ def AddEntry(entry):
     global budget
     #Clear Formatting
     CleanEntry(entry)
+    print(entry)
     entry = DollarsToCents(entry)
-
+    print(entry)
     #add entry
     budget.insert(entry)
     #update the balance column
