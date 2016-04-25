@@ -62,6 +62,6 @@ target/
 .ipynb_checkpoints
 
 #database and other data files
-.db
-.csv
-.xlsx
+*.db
+*.csv
+*.xlsx
