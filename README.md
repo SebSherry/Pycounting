@@ -29,5 +29,6 @@ from entries of the same date.
 - When there is only one entry on the table, attempting to remove it will fail.
 the program will still operate. It is recommend that the user edits the entry in
 this case rather than deleting and making a new entry.
+- Decimal numbers maybe out by 0.01 due to conversion error. E.g. $4.10 will be $4.09
 
 If you find a bug that is not recorded here, please let me know.
