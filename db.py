@@ -1,5 +1,5 @@
 #--------------------------------------------------------------------#
-#db.py V1.0
+#db.py V1.2
 #Created, Written, Developed and Designed by Sebastian Sherry April 2016
 #This program is licensed under the GNU General Public License v3.0
 #--------------------------------------------------------------------#

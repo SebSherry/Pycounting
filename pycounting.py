@@ -1,5 +1,5 @@
 #--------------------------------------------------------------------#
-#Pycounting V1.0
+#Pycounting V1.2
 #Created, Written, Developed and Designed by Sebastian Sherry April 2016
 #This program is licensed under the GNU General Public License v3.0
 #--------------------------------------------------------------------#
@@ -286,7 +286,7 @@ class WeeklySummary(tk.Frame):
         #Display table
         self.tree = ttk.Treeview(self, columns=('week', 'debt', 'credit', 'split'))
         #self.tree.bind("<Double-1>", self.ModifyEntry)
-        self.tree.column('week', minwidth=64, anchor='center')
+        self.tree.column('week',width=180, anchor='center')
         self.tree.column('debt',width=80,  anchor='center')
         self.tree.column('credit',width=80,  anchor='center')
         self.tree.column('split',width=80,  anchor='center')
@@ -296,21 +296,34 @@ class WeeklySummary(tk.Frame):
         self.tree.heading('split', text='Split')
         self.tree['show'] = ('headings')
 
+        #buttons
+        btnFrame = ttk.Frame(self)
+        CSVbtn = ttk.Button(btnFrame, text = 'ToCSV', command=self.ToCSV)
+
         #place widgets
         heading.grid(row = 1, column = 1, columnspan = 3,pady=10)
         self.tree.grid(row = 2, column = 1, columnspan = 3, padx=420)
+        btnFrame.grid(row=3, column=2,pady=3)
+        CSVbtn.grid(row = 1, column = 1, padx=1)
 
         #intizlize tree
-        #self.DisplaySummary()
+        self.DisplaySummary()
 
     #displays the current account
-    #def DisplaySummary(self):
-    #    summary = GetWeeklySummary()
-    #    if summary != []:
-    #        #loop through entries
-    #        for entry in summary:
-    #            disEntry = [entry['week'],entry['debt'],entry['credit'],entry['split']]
-    #            self.tree.insert('','end', values=(disEntry))
+    def DisplaySummary(self):
+        summary = GetWeeklySummary()
+        if summary != []:
+            #loop through entries
+            for entry in summary:
+                disEntry = [entry['Week'],entry['Debt'],entry['Credit'],entry['Split']]
+                if (entry['Split'] != '-') and (float(entry['Split'].replace("$","")) < 0):
+                    self.tree.insert('','end', values=(disEntry), tags=('red'))
+                    self.tree.tag_configure('red', foreground='red')
+                else:
+                    self.tree.insert('','end', values=(disEntry))
+
+    def ToCSV(self):
+        messagebox.showinfo(message='This feature is currently disabled')
 
 #main
 if __name__ == "__main__":

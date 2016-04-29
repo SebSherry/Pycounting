@@ -1,5 +1,5 @@
 #--------------------------------------------------------------------#
-#util V1.0
+#util V1.2
 #Created, Written, Developed and Designed by Sebastian Sherry April 2016
 #This program is licensed under the GNU General Public License v3.0
 #--------------------------------------------------------------------#
@@ -45,9 +45,8 @@ def ToDateTimeReversed(string):
     date = datetime(int(strSplit[0]),int(strSplit[1]),int(strSplit[2]))
     return date
 
-#ToDateTime with formatting for Database use
-def ToDateStringDB(string):
-    date = ToDateTime(string)
+#converts a datetime object to a string
+def DateToString(date,reverse = False):
     day = str(date.day)
     mon = str(date.month)
     if (len(day) == 1):
@@ -55,20 +54,23 @@ def ToDateStringDB(string):
     if (len(mon) == 1):
         mon = "0"+mon
 
-    dateStr = str(date.year)+"/"+mon+"/"+day
+    dateStr = ""
+    if reverse:
+        dateStr = day+"/"+mon+"/"+str(date.year)
+    else:
+        dateStr = str(date.year)+"/"+mon+"/"+day
     return dateStr
 
-#ToDateTime with formatting for GUI use
+#Combines ToDateTime and DateToString for Database use
+def ToDateStringDB(string):
+    date = ToDateTime(string)
+    dateStr = DateToString(date)
+    return dateStr
+
+#Combines ToDateTime and DateToString for GUI use
 def ToDateStringGUI(string):
     date = ToDateTime(string)
-    day = str(date.day)
-    mon = str(date.month)
-    if (len(day) == 1):
-        day = "0"+day
-    if (len(mon) == 1):
-        mon = "0"+mon
-
-    dateStr = day+"/"+mon+"/"+str(date.year)
+    dateStr = DateToString(date, True)
     return dateStr
 
 #Formats the budget entry for GUI use
@@ -86,6 +88,19 @@ def FormatEntry(entry):
         dateSplit[0] = str(int(dateSplit[0])-2000)
     date = dateSplit[2]+"/"+dateSplit[1]+"/"+dateSplit[0]
     return [date,entry['Description'],entry['Debt'],entry['Credit'],entry['ID'],entry['Ord']]
+
+#Formats a week summary for GUI use
+#pre: dictionary
+#post: list
+def FormatSummary(entry):
+    for x in ['Debt','Credit','Split']:
+        if (entry[x] == 0):
+            entry[x] = "-"
+        else:
+            entry[x] = "${0:.2f}".format(float(entry[x])/100.0)
+
+    return entry
+
 
 #Converts a list to an dictionary
 def ToDict(entry):

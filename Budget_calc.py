@@ -1,5 +1,5 @@
 #--------------------------------------------------------------------#
-#Budget_calc V1.0
+#Budget_calc V1.2
 #Created, Written, Developed and Designed by Sebastian Sherry April 2016
 #This program is licensed under the GNU General Public License v3.0
 #--------------------------------------------------------------------#
@@ -38,7 +38,6 @@ def GetWeeklySummary():
         datesInWeek = []
         weekLists = []
         dates = budget.getDates(True)
-        print(dates[0])
         weekStart = ToDateTimeReversed(dates[0])
         datesInWeek.append(weekStart)
 
@@ -51,11 +50,9 @@ def GetWeeklySummary():
                 if date not in datesInWeek:
                     datesInWeek.append(date)
             else:
-                print(weekStart, date)
                 weekLists.append(datesInWeek)
                 weekStart = weekStart + datetime.timedelta(days=7)
                 datesInWeek = [weekStart]
-                print(weekStart, date)
                 #check for skipped weeks
                 if abs((date - weekStart).days) > 6:
                     found = False
@@ -64,11 +61,11 @@ def GetWeeklySummary():
                         weekLists.append(datesInWeek)
                         weekStart = weekStart + datetime.timedelta(days=7)
                         datesInWeek = [weekStart]
-                        print(weekStart, date)
                         if abs(date - weekStart).days <= 6:
                             found = True
                     #end if and while
-                datesInWeek.append(date)
+                if date not in datesInWeek:
+                    datesInWeek.append(date)
         #end for
         #create summarys
         for week in weekLists:
@@ -77,23 +74,25 @@ def GetWeeklySummary():
             split = 0
             #get each entry for date in week
             for date in week:
+                date = DateToString(date)
                 #grab entries for date
                 tempList = budget.retrieveEntriesInOrder(date)
                 #update debt and credit
                 for entry in tempList:
-                    if int(entry['debt']) != 0:
-                        debt += int(entry['debt'])
+                    if int(entry['Debt']) != 0:
+                        debt += int(entry['Debt'])
                     else:
-                        credit += int(entry['credit'])
+                        credit += int(entry['Credit'])
             #calculate split
             split = credit - debt
             #get start and end dates
-            startDate = week[0]
-            endDate = startDate + datetime.timedelta(days=6)
-            weekString = str(startDate)+" - "+str(endDate)
+            endDate = week[0] + datetime.timedelta(days=6)
+            endDate = ToDateStringGUI(str(endDate.day)+"/"+str(endDate.month)+"/"+str(endDate.year))
+            startDate = ToDateStringGUI(str(week[0].day)+"/"+str(week[0].month)+"/"+str(week[0].year))
+            weekString = startDate+" - "+endDate
             #add weekly summary to summarys
-            tempSum = dict(week = weekString, debt = debt, credit = credit, split = "${0:.2f}".format(float(split)/100.0))
-            summarys.append(FormatEntry(tempSum))
+            tempSum = dict(Week = weekString, Debt = debt, Credit = credit, Split = split)
+            summarys.append(FormatSummary(tempSum))
         #end for
         return summarys
     #else return empty list
@@ -109,7 +108,7 @@ def FillBudgetList(toCents):
         for entry in tempList:
             if toCents == True:
                 entry = CentsToDollars(entry)
-            
+
             listBudget.append(entry)
     return listBudget
 

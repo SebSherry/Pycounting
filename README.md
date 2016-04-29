@@ -24,10 +24,12 @@ clarifying notes:
 an entry cannot be moved to a position where another entry of a different date separates it
 from entries of the same date.
 - ToCSV will (eventually) output the contents of a table to a CSV file
+- The menu bar can be used to view both the Daily Budget and Weekly Summary breakdowns
 
 #Known Bugs
 - When there is only one entry on the table, attempting to remove it will fail.
 the program will still operate. It is recommend that the user edits the entry in
 this case rather than deleting and making a new entry.
+- The Debt/Credit drop down may not appear in the add/modify screen on OSx.
 
 If you find a bug that is not recorded here, please let me know.
