@@ -36,8 +36,6 @@ def FillBudgetList(toCents):
     dates = budget.getDates()
     for date in dates:
         tempList = budget.retrieveEntriesInOrder(date)
-        #print(tempList)
-        #wait=input()
         for entry in tempList:
             if toCents == True:
                 entry = CentsToDollars(entry)
@@ -74,9 +72,7 @@ def AddEntry(entry):
     global budget
     #Clear Formatting
     CleanEntry(entry)
-    print(entry)
     entry = DollarsToCents(entry)
-    print(entry)
     #add entry
     budget.insert(entry)
     #update the balance column
