@@ -11,6 +11,7 @@ def CleanEntry(entry):
     for x in ['Debt','Credit']:
         entry[x] = str(entry[x]).replace('$','')
         entry[x] = str(entry[x]).replace('-','0')
+    entry['Date'] = ToDateStringDB(entry['Date'])
     return entry
 
 def GetCurrentDateFormatted(reversed = False):
@@ -33,13 +34,20 @@ def GetCurrentDateFormatted(reversed = False):
 #simplied string to datetime conversion
 def ToDateTime(string):
     strSplit = string.split('/')
-    date = datetime(int(strSplit[2])+2000,int(strSplit[1]),int(strSplit[0]))
+    if (int(strSplit[2]) < 2000):
+        strSplit[2] = (int(strSplit[2])+2000)
+    date = datetime(int(strSplit[2]),int(strSplit[1]),int(strSplit[0]))
     return date
 
-#Same as ToDateTime but Returns a formatted string
-def ToDateTimeString(string):
+#same as ToDateTime but for a different input pattern
+def ToDateTimeReversed(string):
     strSplit = string.split('/')
-    date = datetime(int(strSplit[2])+2000,int(strSplit[1]),int(strSplit[0]))
+    date = datetime(int(strSplit[0]),int(strSplit[1]),int(strSplit[2]))
+    return date
+
+#ToDateTime with formatting for Database use
+def ToDateStringDB(string):
+    date = ToDateTime(string)
     day = str(date.day)
     mon = str(date.month)
     if (len(day) == 1):
@@ -48,6 +56,19 @@ def ToDateTimeString(string):
         mon = "0"+mon
 
     dateStr = str(date.year)+"/"+mon+"/"+day
+    return dateStr
+
+#ToDateTime with formatting for GUI use
+def ToDateStringGUI(string):
+    date = ToDateTime(string)
+    day = str(date.day)
+    mon = str(date.month)
+    if (len(day) == 1):
+        day = "0"+day
+    if (len(mon) == 1):
+        mon = "0"+mon
+
+    dateStr = day+"/"+mon+"/"+str(date.year)
     return dateStr
 
 #Formats the budget entry for GUI use
@@ -60,18 +81,22 @@ def FormatEntry(entry):
         else:
             entry[x] = float(entry[x])
         entry[x] = "$"+str(entry[x])
-    date = entry['Date'][8]+entry['Date'][9]+"/"+entry['Date'][5]+entry['Date'][6]+"/"+entry['Date'][2]+entry['Date'][3]
+    dateSplit = entry['Date'].split('/')
+    if int(dateSplit[0]) > 2000:
+        dateSplit[0] = str(int(dateSplit[0])-2000)
+    date = dateSplit[2]+"/"+dateSplit[1]+"/"+dateSplit[0]
     return [date,entry['Description'],entry['Debt'],entry['Credit'],entry['ID'],entry['Ord']]
 
 #Converts a list to an dictionary
-def ToDict(entry,formatDate = True):
-    if formatDate == True:
-        entry[0] = ToDateTimeString(entry[0])
+def ToDict(entry):
+    print(entry)
+    #force date formatting
+    date = ToDateStringGUI(entry[0])
     dic = []
     if len(entry) == 7:
-        dic = dict(ID=entry[5], Date=entry[0], Description=entry[1], Debt=entry[2], Credit=entry[3],Ord=entry[6])
+        dic = dict(ID=entry[5], Date=date, Description=entry[1], Debt=entry[2], Credit=entry[3],Ord=entry[6])
     else:
-        dic = dict(ID=entry[4], Date=entry[0], Description=entry[1], Debt=entry[2], Credit=entry[3], Ord=entry[5])
+        dic = dict(ID=entry[4], Date=date, Description=entry[1], Debt=entry[2], Credit=entry[3], Ord=entry[5])
     return dic
 
 #converts all the entries values from cents to dollars

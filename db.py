@@ -59,8 +59,11 @@ class Database:
             entries.append(dict(row))
         return entries
 
-    def getDates(self):
-        cursor = self._db.execute('select distinct Date from {} order by DATE DESC'.format(self._table))
+    def getDates(self, reverse = False):
+        order = 'DESC'
+        if reverse:
+            order = 'ASC'
+        cursor = self._db.execute('select distinct Date from {} order by DATE {}'.format(self._table, order))
         dates = []
         for date in cursor:
             #returns date as a sting element list. Then converted to string
@@ -97,7 +100,7 @@ def CSVToDB(filename):
     budget = ReadInCSV(filename)
     count = len(budget)-1
     for row in budget:
-        row = dict(Date = ToDateTimeString(row[0]), Description=row[1], Debt=row[2], Credit=row[3], Ord=count)
+        row = dict(Date = ToDateStringDB(row[0]), Description=row[1], Debt=row[2], Credit=row[3], Ord=count)
         row = CleanEntry(row)
         row = DollarsToCents(row)
         db.insert(row)

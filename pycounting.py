@@ -29,11 +29,19 @@ class Pycounting(tk.Tk):
         container.grid_columnconfigure(0, weight=1)
 
         #menu
-        #menubar = tk.Menu(container)
+        menubar = tk.Menu(container)
+        menubar.add_command(label="Daily", command=lambda: self.show_frame(DailyBudgetPage))
+        menubar.add_command(label="Weekly", command=lambda: self.show_frame(WeeklySummary))
+        menubar.add_separator()
+        menubar.add_command(label="Quit", command=quit)
+        #menubar.add_command(label="ToCSV", command=self.ToCSV)
         #filemenu = tk.Menu(menubar, tearoff=0)
         #filemenu.add_command(label="Text", command="command")
         #filemenu.add_separator()
-        #tk.Tk.config(self, menu=menubar)
+        tk.Tk.config(self, menu=menubar)
+        #self.
+        #self.
+        #self.
 
         #dictionary to hold all windows
         self.frames = {}
@@ -76,16 +84,16 @@ class DailyBudgetPage(tk.Frame):
         heading = ttk.Label(self, text = 'Daily Budget', font = FONT_LARGE, justify = 'center')
         #count = Label(window, text = '1/1', justify = CENTER)
         btnFrame = ttk.Frame(self)
+        CSVbtn = ttk.Button(btnFrame, text = 'ToCSV', command=self.ToCSV)
         addbtn = ttk.Button(btnFrame, text = 'Add', command=self.addDailyEntry)
-        quitbtn = ttk.Button(btnFrame, text = 'Quit', command=quit)
-        outbtn = ttk.Button(btnFrame, text = 'ToCSV', command=self.ToCSV)
+        #quitbtn = ttk.Button(btnFrame, text = 'Quit', command=quit)
         #place widgets
         heading.grid(row = 1, column = 1, columnspan = 3,pady=10)
         self.tree.grid(row = 2, column = 1, columnspan = 3, padx=420)
         btnFrame.grid(row=3, column=2,pady=3)
-        outbtn.grid(row = 1, column = 1, padx=1)
+        CSVbtn.grid(row = 1, column = 1, padx=1)
         addbtn.grid(row = 1, column = 2, padx=1)
-        quitbtn.grid(row = 1, column = 3, padx=1)
+        #quitbtn.grid(row = 1, column = 3, padx=1)
 
         #intizlize tree
         self.DisplayAccount()
@@ -197,7 +205,7 @@ class DailyBudgetPage(tk.Frame):
 
     def ModifyEntry(self, event):
         item = self.tree.selection()[0]
-        entry = ToDict(self.tree.item(item,"values"), False)
+        entry = ToDict(self.tree.item(item,"values"))
         #entry = self.tree.item(item,"values")
 
         opt = tk.Tk()
@@ -237,7 +245,7 @@ class DailyBudgetPage(tk.Frame):
                 messagebox.showinfo(message='Cannot move entry. Already at the top')
             else:
                 second = self.tree.next(item)
-                second = ToDict(self.tree.item(second,"values"), False)
+                second = ToDict(self.tree.item(second,"values"))
                 if entry['Date'] != second['Date']:
                     messagebox.showinfo(message='Cannot move entry. Dates would longer be in order')
                 else:
@@ -253,7 +261,7 @@ class DailyBudgetPage(tk.Frame):
                 messagebox.showinfo(message='Cannot move entry. Already at the bottom')
             else:
                 second = self.tree.next(item)
-                second = ToDict(self.tree.item(second,"values"), False)
+                second = ToDict(self.tree.item(second,"values"))
                 if entry['Date'] != second['Date']:
                     messagebox.showinfo(message='Cannot move entry. Dates would longer be in order')
                 else:
@@ -271,14 +279,43 @@ class DailyBudgetPage(tk.Frame):
 class WeeklySummary(tk.Frame):
     def __init__(self, parent, controller):
         tk.Frame.__init__(self, parent)
-        heading = ttk.Label(self, text = 'Account', font = FONT_LARGE, justify = 'center')
-        nextbtn = ttk.Button(self, text = 'Display', command=lambda: controller.show_frame(DailyBudgetPage))
 
-        heading.pack()
-        nextbtn.pack()
+        #Heading
+        heading = ttk.Label(self, text = 'Weekly Summary', font = FONT_LARGE, justify = 'center')
 
-#define app and settings
-app = Pycounting()
-#app.geometry("1280x720")
-#launch app
-app.mainloop()
+        #Display table
+        self.tree = ttk.Treeview(self, columns=('week', 'debt', 'credit', 'split'))
+        #self.tree.bind("<Double-1>", self.ModifyEntry)
+        self.tree.column('week', minwidth=64, anchor='center')
+        self.tree.column('debt',width=80,  anchor='center')
+        self.tree.column('credit',width=80,  anchor='center')
+        self.tree.column('split',width=80,  anchor='center')
+        self.tree.heading('week', text='Week')
+        self.tree.heading('debt', text='Debt')
+        self.tree.heading('credit', text='Credit')
+        self.tree.heading('split', text='Split')
+        self.tree['show'] = ('headings')
+
+        #place widgets
+        heading.grid(row = 1, column = 1, columnspan = 3,pady=10)
+        self.tree.grid(row = 2, column = 1, columnspan = 3, padx=420)
+
+        #intizlize tree
+        #self.DisplaySummary()
+
+    #displays the current account
+    #def DisplaySummary(self):
+    #    summary = GetWeeklySummary()
+    #    if summary != []:
+    #        #loop through entries
+    #        for entry in summary:
+    #            disEntry = [entry['week'],entry['debt'],entry['credit'],entry['split']]
+    #            self.tree.insert('','end', values=(disEntry))
+
+#main
+if __name__ == "__main__":
+    #define app and settings
+    app = Pycounting()
+    #app.geometry("1280x720")
+    #launch app
+    app.mainloop()

@@ -5,6 +5,7 @@
 #--------------------------------------------------------------------#
 from db import *
 from util import *
+import datetime
 
 #filenames
 filen = "budget.db"
@@ -30,6 +31,75 @@ def GetDailyBudget():
         budget = Database(filename = filen, table='daily')
     return FillBudgetList(True)
 
+def GetWeeklySummary():
+    if budget != []:
+        #variables
+        summarys = []
+        datesInWeek = []
+        weekLists = []
+        dates = budget.getDates(True)
+        print(dates[0])
+        weekStart = ToDateTimeReversed(dates[0])
+        datesInWeek.append(weekStart)
+
+        #seperate all dates into weeks
+        for date in dates:
+            #format date
+            date = ToDateTimeReversed(date)
+            #if the date is not the starting date and the difference between the two is less than or equal to 6 days
+            if abs((date - weekStart).days) <= 6:
+                if date not in datesInWeek:
+                    datesInWeek.append(date)
+            else:
+                print(weekStart, date)
+                weekLists.append(datesInWeek)
+                weekStart = weekStart + datetime.timedelta(days=7)
+                datesInWeek = [weekStart]
+                print(weekStart, date)
+                #check for skipped weeks
+                if abs((date - weekStart).days) > 6:
+                    found = False
+                    while(not found):
+                        datesInWeek.append(weekStart + datetime.timedelta(days=6))
+                        weekLists.append(datesInWeek)
+                        weekStart = weekStart + datetime.timedelta(days=7)
+                        datesInWeek = [weekStart]
+                        print(weekStart, date)
+                        if abs(date - weekStart).days <= 6:
+                            found = True
+                    #end if and while
+                datesInWeek.append(date)
+        #end for
+        #create summarys
+        for week in weekLists:
+            debt = 0
+            credit = 0
+            split = 0
+            #get each entry for date in week
+            for date in week:
+                #grab entries for date
+                tempList = budget.retrieveEntriesInOrder(date)
+                #update debt and credit
+                for entry in tempList:
+                    if int(entry['debt']) != 0:
+                        debt += int(entry['debt'])
+                    else:
+                        credit += int(entry['credit'])
+            #calculate split
+            split = credit - debt
+            #get start and end dates
+            startDate = week[0]
+            endDate = startDate + datetime.timedelta(days=6)
+            weekString = str(startDate)+" - "+str(endDate)
+            #add weekly summary to summarys
+            tempSum = dict(week = weekString, debt = debt, credit = credit, split = "${0:.2f}".format(float(split)/100.0))
+            summarys.append(FormatEntry(tempSum))
+        #end for
+        return summarys
+    #else return empty list
+    else:
+        return []
+
 def FillBudgetList(toCents):
     tempList = []
     listBudget = []
@@ -39,6 +109,7 @@ def FillBudgetList(toCents):
         for entry in tempList:
             if toCents == True:
                 entry = CentsToDollars(entry)
+            
             listBudget.append(entry)
     return listBudget
 
@@ -93,11 +164,6 @@ def EditEntry(original,altered):
 def RemoveEntry(entry):
     budget.delete(entry['ID'])
     return True
-
-#simplied string to datetime conversion
-def ToDateTime(string):
-    date = datetime(int(string[6])*10+int(string[7])+2000,int(string[3])*10+int(string[4]),int(string[0])*10+int(string[1]))
-    return date
 
 #reorganizes the budget list by date and by order of entry
 def orderBudget(tempList):
