@@ -36,6 +36,7 @@ def ToDateTime(string):
     strSplit = string.split('/')
     if (int(strSplit[2]) < 2000):
         strSplit[2] = (int(strSplit[2])+2000)
+    print(strSplit)
     date = datetime(int(strSplit[2]),int(strSplit[1]),int(strSplit[0]))
     return date
 
@@ -63,7 +64,11 @@ def DateToString(date,reverse = False):
 
 #Combines ToDateTime and DateToString for Database use
 def ToDateStringDB(string):
-    date = ToDateTime(string)
+    try:
+        date = ToDateTime(string)
+    except:
+        print("Reversed date")
+        date= ToDateTimeReversed(string)
     dateStr = DateToString(date)
     return dateStr
 
@@ -74,20 +79,15 @@ def ToDateStringGUI(string):
     return dateStr
 
 #Formats the budget entry for GUI use
-#pre: dictionary
-#post: list
 def FormatEntry(entry):
-    for x in ['Debt','Credit']:
+    for x in ['Debt','Credit','Bal']:
         if (entry[x] == 0):
             entry[x] = "-"
         else:
             entry[x] = float(entry[x])
         entry[x] = "$"+str(entry[x])
-    dateSplit = entry['Date'].split('/')
-    if int(dateSplit[0]) > 2000:
-        dateSplit[0] = str(int(dateSplit[0])-2000)
-    date = dateSplit[2]+"/"+dateSplit[1]+"/"+dateSplit[0]
-    return [date,entry['Description'],entry['Debt'],entry['Credit'],entry['ID'],entry['Ord']]
+    entry['Date'] = FixDate(entry['Date'])
+    return entry
 
 #Formats a week summary for GUI use
 #pre: dictionary
@@ -111,21 +111,26 @@ def ToDict(entry):
     if len(entry) == 7:
         dic = dict(ID=entry[5], Date=date, Description=entry[1], Debt=entry[2], Credit=entry[3],Ord=entry[6])
     else:
-        dic = dict(ID=entry[4], Date=date, Description=entry[1], Debt=entry[2], Credit=entry[3], Ord=entry[5])
+        dic = dict(ID=entry[4], Date=date, Description=entry[1], Debt=entry[2], Credit=entry[3],Ord=entry[5])
     return dic
 
 #converts all the entries values from cents to dollars
 def CentsToDollars(entry):
-    for col in ['Debt','Credit']:
-        temp = float(entry[col])/100.0
-        entry[col] = "{0:.2f}".format(temp)
+    for col in ['Debt','Credit','Bal']:
+        try:
+            temp = float(entry[col])/100.0
+            entry[col] = "{0:.2f}".format(temp)
+        except:
+            pass
     return entry
 
 def DollarsToCents(entry):
     for col in ['Debt','Credit']:
-        entry[col] = round(float(entry[col])*100)
+        entry[col] = int(float(entry[col])*100)
     return entry
 
-def FixDate(entry):
-    entry['Date'] = '2'+entry['Date'][1:]
-    return entry
+def FixDate(date):
+    dateSplit = date.split('/')
+    if int(dateSplit[0]) > 2000:
+        dateSplit[0] = str(int(dateSplit[0])-2000)
+    return dateSplit[2]+"/"+dateSplit[1]+"/"+dateSplit[0]

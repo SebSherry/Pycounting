@@ -100,20 +100,13 @@ class DailyBudgetPage(tk.Frame):
 
     #displays the current account
     def DisplayAccount(self):
-        budget = GetDailyBudget()
+        budget = GetDailyDict()
         if budget != []:
-            balances = GenBalance()
             #clear treeview if already populated
             self.ClearDisplay()
             #loop through entries
             for entry in budget:
-                entry = FormatEntry(entry)
-                amt = 0
-                for bal in balances:
-                    if bal['ID'] == entry[4]:
-                        amt = "$"+str(bal['BAL'])
-                        break
-                disEntry = [entry[0],entry[1],entry[2],entry[3],amt,entry[4],entry[5]]
+                disEntry = [entry['Date'],entry['Description'],entry['Debt'],entry['Credit'],entry['Bal'],entry['ID'],entry['Ord']]
                 self.tree.insert('','end', values=(disEntry))
 
     #deletes all entries in the treeview
@@ -144,7 +137,7 @@ class DailyBudgetPage(tk.Frame):
                 done = EditEntry(CleanEntry(entry),CleanEntry(tempEntry))
             else:
                 #set order
-                tempEntry['Ord'] = len(self.tree.get_children())
+                #tempEntry['Ord'] = len(self.tree.get_children())
                 #add new entry
                 AddEntry(tempEntry)
             #update Display
@@ -244,7 +237,7 @@ class DailyBudgetPage(tk.Frame):
             if int(entry['Ord']) == (len(self.tree.get_children())-1):
                 messagebox.showinfo(message='Cannot move entry. Already at the top')
             else:
-                second = self.tree.next(item)
+                second = self.tree.prev(item)
                 second = ToDict(self.tree.item(second,"values"))
                 if entry['Date'] != second['Date']:
                     messagebox.showinfo(message='Cannot move entry. Dates would longer be in order')
